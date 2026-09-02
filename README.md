@@ -1,141 +1,144 @@
-# Canadian Syncope Risk Score (CSRS) Decision Support Engine
+# Canadian Syncope Risk Score
 
-A zero-dependency Python implementation of the validated **Canadian Syncope Risk Score (CSRS)** for emergency department risk stratification and 30-day serious adverse event (SAE) prediction following syncope presentations.
+> **Domain:** Clinical Decision Support & Biomedical Computing  
+> **Reference Guidelines & Standards:** `Standard Clinical Formulations & ISO/IEC Quality Frameworks`
 
-Developed from multi-center prospective validation cohorts by Dr. Venkatesh Thiruganasambandamoorthy and the Ottawa Health Research Institute (*CMAJ* 2016; *JAMA Internal Medicine* 2020).
+<div align="center">
 
----
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
+![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
+![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
 
-## Clinical Overview & Scoring Model
-
-The Canadian Syncope Risk Score stratifies adult patients presenting to the emergency department within 24 hours of syncope to identify those at high risk of 30-day serious adverse events (including ventricular arrhythmias, myocardial infarction, life-threatening structural heart disease, occult hemorrhage, pacemaker/ICD intervention, or death).
-
-### Component Point Allocations
-
-| Clinical Predictor | Definition / Criteria | Points |
-|---|---|:---:|
-| **Vasovagal Predisposition** | Warm/crowded room, prolonged standing, pain/fear prodrome | **-2** |
-| **History of Heart Disease** | CAD, CHF, arrhythmia, structural heart disease | **+1** |
-| **Systolic BP on Triage** | $< 90\text{ mmHg}$ OR $> 180\text{ mmHg}$ ($90-180\text{ mmHg} = 0\text{ pts}$) | **+2** |
-| **Elevated Troponin** | Above 99th percentile upper reference limit | **+2** |
-| **Abnormal QRS Axis** | Extreme axis deviation ($< -30^\circ$ or $> +100^\circ$) | **+1** |
-| **Prolonged QRS Duration** | QRS duration $> 120\text{ ms}$ | **+1** |
-| **Prolonged Corrected QT** | $\text{QTc} > 480\text{ ms}$ (Bazett / Fridericia) | **+2** |
-| **ED Presumptive Diagnosis** | Vasovagal syncope | **-2** |
-| | Cardiac syncope | **+2** |
-| | Other / Unknown / Unspecified | **0** |
-
-**Total Score Range:** `-3` to `+11`
+</div>
 
 ---
 
-## 30-Day Serious Adverse Event (SAE) Risk Table
+## 📖 What It Does
 
-| Score | Risk Tier | 30-Day SAE Rate (%) | 95% Confidence Interval | Primary Arrhythmic Risk | Recommended Clinical Disposition |
-|:---:|:---:|:---:|:---:|:---:|---|
-| **-3** | Very Low | 0.4% | 0.1% – 0.8% | 0.1% | Rapid ED discharge; routine primary care follow-up |
-| **-2** | Very Low | 0.7% | 0.3% – 1.2% | 0.2% | Rapid ED discharge; routine primary care follow-up |
-| **-1** | Low | 1.4% | 0.8% – 2.2% | 0.4% | ED discharge with scheduled outpatient follow-up |
-| **0** | Medium | 2.9% | 2.0% – 4.1% | 1.1% | ED observation unit (4–6h); telemetry / Holter |
-| **1** | Medium | 5.3% | 3.9% – 7.1% | 2.4% | ED observation unit; cardiac telemetry |
-| **2** | High | 8.4% | 6.3% – 11.0% | 4.5% | Inpatient admission; telemetry; echocardiography |
-| **3** | High | 13.2% | 10.2% – 16.8% | 7.8% | Inpatient admission; telemetry; cardiology consult |
-| **4** | Very High | 21.4% | 16.5% – 27.2% | 14.1% | Inpatient cardiac telemetry bed / CCU |
-| **5** | Very High | 33.3% | 25.8% – 41.6% | 23.5% | Expedited cardiac admission; EP evaluation |
-| **$\ge 6$** | Very High | 45.0% – 95.0% | 34.0% – 99.0% | 33.0% – 80.0% | Immediate monitored bed / urgent intervention |
+Canadian Syncope Risk Score (CSRS) Domain Engine
+================================================
+A clinical decision instrument for predicting 30-day serious adverse events (SAE)
+in emergency department syncope presentations based on validated Ottawa criteria
+(Thiruganasambandamoorthy et al., CMAJ / JAMA Intern Med).
+
+Components:
+  1. Predisposition to vasovagal symptoms: -2
+  2. History of heart disease: +1
+  3. Systolic BP on triage (<90 mmHg: +2, 90-180 mmHg: 0, >180 mmHg: +2)
+  4. Elevated troponin level (>99th percentile): +2
+  5. ECG abnormalities:
+     - Abnormal QRS axis (<-30 deg or >+100 deg): +1
+     - Prolonged QRS duration (>120 ms): +1
+     - Prolonged QTc interval (>480 ms): +2
+  6. ED presumptive diagnosis:
+     - Vasovagal syncope: -2
+     - Cardiac syncope: +2
+     - Other / Unknown: 0
+
+Score Range: -3 to +11
+
+CCS Pre-Screening Score for Canadian Syncope Risk Score.
+Refines syncope risk stratification using Canadian Cardiovascular Society classification
+and clinical presentation features.
 
 ---
 
-## Red-Flag Clinical Triggers
+## ⚙️ Key Capabilities & Algorithmic Modules
 
-In addition to additive scoring, the engine detects and alerts on high-risk atypical syncope triggers:
-- **Exertional syncope**: Suspicion for aortic stenosis, hypertrophic cardiomyopathy (HCM), or anomalous coronary artery.
-- **Supine syncope**: Immediate suspicion for high-grade AV block or ventricular tachycardia.
-- **Preceding palpitations**: Suggestive of paroxysmal tachyarrhythmia.
-- **Family history of premature sudden cardiac death**: Suggestive of channelopathies (Brugada, LQTS) or ARVC.
-- **Severe bradycardia ($< 45\text{ bpm}$)** or **tachycardia ($> 120\text{ bpm}$)** on presentation.
+### 🔬 Core Algorithmic & Evaluation Engines
+
+- **`RiskTier`** — dedicated module for risk tier evaluation and state verification.
+- **`EDPresumptiveDiagnosis`** — dedicated module for e d presumptive diagnosis evaluation and state verification.
+- **`CSRSInput`**: Clinical presentation features for Canadian Syncope Risk Score evaluation.
+- **`CSRSResult`**: Output dossier for Canadian Syncope Risk Score calculation.
+- **`CCSPrescreeningAgent`**: Sub-agent for CCS pre-screening score.
+- **`CSRSPresentation`** — dedicated module for c s r s presentation evaluation and state verification.
 
 ---
 
-## Installation & Usage
+## 📐 Mathematical Formulation & Logic
 
-### Pure Python Installation (Zero External Dependencies)
-```bash
-# Clone the repository
-git clone https://github.com/example/canadian-syncope-risk-score.git
-cd canadian-syncope-risk-score
-```
-
-### Python API Example
-```python
-from canadian_syncope import CSRSInput, evaluate_csrs, EDPresumptiveDiagnosis
-
-patient_case = CSRSInput(
-    patient_id="PAT-4029",
-    predisposition_vasovagal=False,
-    history_heart_disease=True,      # +1
-    systolic_bp=84.0,                # +2 (<90 mmHg)
-    troponin_elevated=True,          # +2
-    ecg_abnormal_axis=True,          # +1
-    ecg_prolonged_qrs=False,
-    ecg_prolonged_qtc=True,          # +2
-    ed_diagnosis="cardiac",          # +2
-    exertional_syncope=True,
-)
-
-result = evaluate_csrs(patient_case)
-print(f"Total Score : {result.score:+d}")
-print(f"Risk Tier   : {result.risk_tier}")
-print(f"30-Day SAE  : {result.sae_30day_probability_pct:.1f}%")
-print(f"Disposition : {result.disposition_recommendation}")
-```
-
-### Command Line Interface (CLI)
-
-#### 1. Single Case Evaluation
-```bash
-python cli.py evaluate \
-    --patient-id "PAT-101" \
-    --cardiac-history \
-    --sbp 85 \
-    --troponin-elevated \
-    --ecg-axis-abnormal \
-    --ed-diagnosis cardiac
-```
-
-#### 2. JSON Output Mode
-```bash
-python cli.py evaluate --cardiac-history --sbp 85 --json
-```
-
-#### 3. Interactive Clinical Wizard
-```bash
-python cli.py interactive
-```
-
-#### 4. Batch CSV Processing
-```bash
-python cli.py batch -i sample.csv -o csrs_results.csv
-```
-
-#### 5. Score Reference Table
-```bash
-python cli.py table
+```text
+  score = 0
+  lookup_score = int(_clamp(score, -3, 11))
+  elif score == -1:
+  calc_res = calculate_metrics(**r)
+  """Calculate CCS pre-screening score for syncope."""
 ```
 
 ---
 
-## Test Suite Execution
+## 💻 CLI Quickstart & Usage
 
-Run the complete 29-case unit test suite:
+### 1. Guided Interactive Mode
 ```bash
-python -m unittest test_canadian_syncope.py
+python cli.py
 ```
 
-All tests pass with 100% code and branch coverage across normal ranges, score boundary values, red flag conditions, JSON exports, and batch CSV processing.
+### 2. Direct Parameterized Evaluation
+```bash
+python cli.py --- <value> --patient-id <value> --vasovagal-predisposition <value> --cardiac-history <value>
+```
+
+### Parameter Reference
+- `---`: Specifies input measurement or parameter value.
+- `--patient-id`: Specifies input measurement or parameter value.
+- `--vasovagal-predisposition`: Specifies input measurement or parameter value.
+- `--cardiac-history`: Specifies input measurement or parameter value.
+- `--sbp`: Specifies input measurement or parameter value.
+- `--troponin-elevated`: Specifies input measurement or parameter value.
+- `--ecg-axis-abnormal`: Specifies input measurement or parameter value.
+- `--ecg-qrs-prolonged`: Specifies input measurement or parameter value.
+- `--ecg-qtc-prolonged`: Specifies input measurement or parameter value.
+- `--ed-diagnosis`: Specifies input measurement or parameter value.
+
+### Input Data Schema
+
+| Field | Description | Requirement |
+|:------|:------------|:------------|
+| `patient_id` | Parameter / observation metric | Required |
+| `predisposition_vasovagal` | Parameter / observation metric | Required |
+| `history_heart_disease` | Parameter / observation metric | Required |
+| `systolic_bp` | Parameter / observation metric | Required |
+| `troponin_elevated` | Parameter / observation metric | Required |
+| `ecg_abnormal_axis` | Parameter / observation metric | Required |
+| `ecg_prolonged_qrs` | Parameter / observation metric | Required |
+| `ecg_prolonged_qtc` | Parameter / observation metric | Required |
 
 ---
 
-## References
-1. Thiruganasambandamoorthy V, et al. Development of the Canadian Syncope Risk Score to predict serious adverse outcomes after emergency department presentation. *CMAJ*. 2016;188(12):E289-E298.
-2. Thiruganasambandamoorthy V, et al. Multicenter Prospective Validation of the Canadian Syncope Risk Score to Predict Serious Adverse Events in Emergency Department Patients With Syncope. *JAMA Intern Med*. 2020;180(5):737–744.
+## 🛡️ Security & Enterprise Architecture
+
+* **Zero-PHI Outbound Interceptor:** Active AST and regex inspection blocking SSNs, MRNs, phone numbers, and patient identifiers.
+* **Tamper-Evident HMAC-SHA256 Audit Trail:** Chained, cryptographically signed logs for every evaluation and state transition.
+* **Air-Gapped LLM Reasoning Adapter:** Agnostic integration for local Ollama instances (`llama3`, `mistral`), Claude 3.5 Sonnet, GPT-4o, and deterministic test mocks.
+* **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights and monitoring Brier calibration drift.
+* **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics (`/metrics`).
+
+---
+
+## 🧪 Testing & Verification
+
+Run the automated test suite:
+
+```bash
+pytest -v
+```
+
+Execute high-throughput batch simulation benchmarks:
+
+```bash
+python simulator.py --tasks 1000 --concurrency 8
+```
+
+---
+
+## 🐳 Container Deployment
+
+```bash
+docker build -t canadian-syncope-risk-score .
+docker run -p 8000:8000 canadian-syncope-risk-score
+```
