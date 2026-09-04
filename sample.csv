@@ -1,6 +1,11 @@
 patient_id,predisposition_vasovagal,history_heart_disease,systolic_bp,troponin_elevated,ecg_abnormal_axis,ecg_prolonged_qrs,ecg_prolonged_qtc,ed_diagnosis
-PAT_001,true,false,120.0,false,false,false,false,vasovagal
-PAT_002,false,true,84.0,true,true,false,true,cardiac
-PAT_003,false,true,130.0,false,false,false,false,unknown
-PAT_004,false,false,192.0,false,false,true,false,unknown
-PAT_005,true,true,118.0,false,false,false,false,vasovagal
+PAT_001,true,false,118.0,false,false,false,false,vasovagal
+PAT_002,true,false,124.0,false,false,false,false,unknown
+PAT_003,true,true,126.0,false,false,false,false,unknown
+PAT_004,false,false,122.0,false,false,false,false,unknown
+PAT_005,false,true,130.0,false,false,false,false,unknown
+PAT_006,false,false,125.0,true,false,false,false,unknown
+PAT_007,false,true,192.0,false,false,false,false,unknown
+PAT_008,false,false,84.0,true,false,false,false,unknown
+PAT_009,false,true,86.0,true,false,false,false,unknown
+PAT_010,false,true,82.0,true,true,true,true,cardiac
