@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browser-based Canadian Syncope Risk Score calculator using the published nine-component CSRS.">
+  <meta name="color-scheme" content="light dark">
+  <title>Canadian Syncope Risk Score</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Clinical score calculator</p>
+        <h1>Canadian Syncope Risk Score</h1>
+        <p class="subtitle">Published nine-component CSRS for adults evaluated in the emergency department after syncope.</p>
+      </div>
+      <button id="themeToggle" class="icon-button" type="button" aria-label="Switch color theme" title="Switch color theme">◐</button>
+    </header>
+
+    <section class="notice" aria-label="Important use information">
+      <strong>Research and education only.</strong> Use after the ED evaluation when no serious cause has already been identified. This calculator does not replace clinical judgment or local protocols.
+    </section>
+
+    <div class="workspace">
+      <form id="csrsForm" class="panel form-panel" novalidate>
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Inputs</p>
+            <h2>Score components</h2>
+          </div>
+          <button id="resetButton" class="text-button" type="button">Reset</button>
+        </div>
+
+        <div class="input-grid">
+          <label class="choice-row">
+            <input id="predisposition" type="checkbox">
+            <span><b>Predisposition to vasovagal symptoms</b><small>Warm crowded place, prolonged standing, fear, emotion, or pain</small></span>
+            <em>−1</em>
+          </label>
+
+          <label class="choice-row">
+            <input id="heartDisease" type="checkbox">
+            <span><b>History of heart disease</b><small>Coronary/valvular disease, cardiomyopathy, heart failure, or arrhythmia/device history</small></span>
+            <em>+1</em>
+          </label>
+
+          <label class="field-row" for="sbp">
+            <span><b>Any ED systolic BP reading</b><small>&lt;90 or &gt;180 mm Hg scores +2</small></span>
+            <span class="number-wrap"><input id="sbp" type="number" inputmode="decimal" min="1" step="1" value="120" aria-describedby="sbpError"><i>mm Hg</i></span>
+          </label>
+          <p id="sbpError" class="field-error" role="alert" hidden></p>
+
+          <label class="choice-row">
+            <input id="troponin" type="checkbox">
+            <span><b>Troponin above 99th percentile</b><small>Use the local assay upper reference limit</small></span>
+            <em>+2</em>
+          </label>
+
+          <label class="choice-row">
+            <input id="axis" type="checkbox">
+            <span><b>Abnormal QRS axis</b><small>&lt;−30° or &gt;100°</small></span>
+            <em>+1</em>
+          </label>
+
+          <label class="choice-row">
+            <input id="qrs" type="checkbox">
+            <span><b>QRS duration &gt;130 ms</b><small>Published CSRS threshold</small></span>
+            <em>+1</em>
+          </label>
+
+          <label class="choice-row">
+            <input id="qtc" type="checkbox">
+            <span><b>Corrected QT interval &gt;480 ms</b><small>QTc threshold used in CSRS</small></span>
+            <em>+2</em>
+          </label>
+
+          <fieldset class="diagnosis-group">
+            <legend><b>ED presumptive diagnosis</b><small>Select the treating clinician's impression at the end of ED assessment</small></legend>
+            <div class="segmented" role="radiogroup" aria-label="ED presumptive diagnosis">
+              <label><input type="radio" name="diagnosis" value="vasovagal"><span>Vasovagal <em>−2</em></span></label>
+              <label><input type="radio" name="diagnosis" value="unknown" checked><span>Other / unknown <em>0</em></span></label>
+              <label><input type="radioy" name="diagnosis" value="cardiac"><span>Cardiac <em>+2</em></span></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <button class="primary-button" type="submit">Analyze</button>
+      </form>
+
+      <section class="panel result-panel" aria-live="polite" aria-labelledby="resultHeading">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Result</p>
+            <h2 id="resultHeading">Ready to calculate</h2>
+          </div>
+          <span id="riskBadge" class="risk-badge neutral">—</span>
+        </div>
+
+        <div class="score-card">
+          <div><span class="metric-label">CSRS</span><strong id="scoreValue">0</strong><small>validated range −3 to 11</small></div>
+          <div><span class="metric-label">Validation cohort</span><strong id="rateValue">—</strong><small>30-day serious outcomes in this category</small></div>
+        </div>
+
+        <div class="result-copy">
+          <h3>Interpretation</h3>
+          <p id="interpretation">Enter the published score components and select <b>Analyze</b>.</p>
+        </div>
+
+        <div class="component-box">
+          <div class="component-header"><h3>Active components</h3><span id="componentCount">0</span></div>
+          <ul id="componentList"><li class="muted">No calculation yet.</li></ul>
+        </div>
+
+        <details>
+          <summary>Risk category reference</summary>
+          <div class="reference-grid" aria-label="CSRS risk categories">
+            <span>−3 to −2</span><b>Very Low</b><span>0.2%</span>
+            <span>−1 to 0</span><b>Low</b><span>0.7%</span>
+            <span>1 to 3</span><b>Medium</b><span>8.0%</span>
+            <span>4 to 5</span><b>High</b><span>19.2%</span>
+            <span>6 to 11</span><b>Very High</b><span>51.3%</span>
+          </div>
+          <p class="fineprint">Rates are observed category-level outcomes in the 2020 prospective multicenter validation cohort; they are not individualized probabilities.</p>
+        </details>
+
+        <footer class="result-footer">
+          <a href="https://doi.org/10.1001/jamainternmed.2020.0288" target="_blank" rel="noopener noreferrer">Validation study</a>
+          <a href="https://doi.org/10.1503/cmaj.151469" target="_blank" rel="noopener noreferrer">Derivation study</a>
+        </footer>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

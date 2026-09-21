@@ -1,175 +1,88 @@
-# Canadian Syncope Risk Score (CSRS)
+# Canadian Syncope Risk Score
 
-> **Domain:** Emergency Cardiology & Clinical Decision Support  
-> **Reference:** Thiruganasambandamoorthy et al., *CMAJ* 2016; 188(12):E289-E298.  
-> **Validation:** Thiruganasambandamoorthy et al., *JAMA Intern Med* 2020; 180(5):737-744.
+A dependency-free implementation of the **Canadian Syncope Risk Score (CSRS)** for research, education, and reproducible score calculation. The repository provides a browser calculator, Python API, CLI, CSV batch processing, and automated tests.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-58%20Passed-brightgreen.svg)
+## What it calculates
 
----
+The implementation follows the published nine-component CSRS:
 
-## 📖 Overview
+| Component | Points |
+| --- | ---: |
+| Predisposition to vasovagal symptoms | -1 |
+| History of heart disease | +1 |
+| Any ED systolic BP reading <90 or >180 mm Hg | +2 |
+| Troponin above the local 99th percentile | +2 |
+| QRS axis <−30° or >100° | +1 |
+| QRS duration >130 ms | +1 |
+| QTc >480 ms | +2 |
+| ED diagnosis of vasovagal syncope | -2 |
+| ED diagnosis of cardiac syncope | +2 |
 
-The **Canadian Syncope Risk Score (CSRS)** is a validated clinical decision instrument developed to stratify adult emergency department (ED) syncope patients for their risk of **30-day serious adverse events (SAE)** following index evaluation.
+Validated risk categories are **Very Low (-3 to -2)**, **Low (-1 to 0)**, **Medium (1 to 3)**, **High (4 to 5)**, and **Very High (6 to 11)**. The browser and Python outputs show the observed 30-day serious-outcome rate for the corresponding category in the 2020 prospective multicenter validation cohort. This is a category-level cohort rate, not an individualized probability.
 
-Syncope accounts for 1%–2% of all ED visits. While the majority of presentations represent benign vasovagal episodes, a critical subset harbours occult cardiac or life-threatening systemic etiologies. The CSRS integrates clinical history, triage vitals, initial investigations (cardiac troponin, 12-lead ECG markers), and emergency physician presumptive diagnoses to guide safe discharge versus observation and expedited inpatient admission.
+## Browser calculator
 
----
+The static interface runs entirely in the browser. It includes light and dark themes, responsive layout, keyboard-accessible controls, explicit validation, and no analytics or data submission. Enter the score components and select **Analyze**.
 
-## 🎯 30-Day Serious Adverse Outcomes Evaluated
+No patient data are sent to a server by the application. Theme preference is the only value stored locally in the browser.
 
-The primary clinical endpoint is 30-day serious adverse cardiovascular or non-cardiovascular outcomes:
+## Python and CLI
 
-1. **Ventricular Arrhythmias:** Ventricular fibrillation (VF), sustained or symptomatic ventricular tachycardia (VT).
-2. **Myocardial Infarction (MI):** Acute coronary syndrome with biomarker necrosis or ischemic ECG evolution.
-3. **Structural Heart Disease Complications:** Severe aortic stenosis, acute heart failure, hypertrophic obstructive cardiomyopathy decompensation.
-4. **Aortic Dissection:** Thoracic or abdominal aortic dissection presenting with syncopal collapse.
-5. **Subarachnoid Hemorrhage (SAH):** Intracranial hemorrhage presenting with loss of consciousness.
-6. **Internal Bleeding:** Massive gastrointestinal, retroperitoneal, or intra-abdominal hemorrhage.
-7. **Pacemaker / ICD Placement:** Unscheduled bradyarrhythmia pacing (high-grade AV block, sick sinus syndrome) or secondary prevention ICD implantation within 30 days.
+Requires Python 3.10 or later and has no runtime dependencies.
 
----
-
-## 🧮 CSRS Scoring Formulation
-
-The composite score spans **-3 to +11** based on 9 clinical and investigative parameters assessed in the ED:
-
-### 1. Clinical Factors
-| Parameter | Definition / Criteria | Score Points |
-|:----------|:----------------------|:------------:|
-| **Predisposition to Vasovagal Symptoms** | Warm crowded place, prolonged standing, fear, emotion, or severe pain triggers | **-1** (or -2 in expanded rule) |
-| **History of Heart Disease** | CAD, prior MI, heart failure, valvular heart disease, or past ventricular arrhythmia | **+1** |
-| **Systolic BP on Triage** | Severe hypotension (<90 mmHg) OR severe hypertension (>180 mmHg) | **+2** |
-
-### 2. Investigations
-| Parameter | Definition / Criteria | Score Points |
-|:----------|:----------------------|:------------:|
-| **Elevated Troponin** | Serum cardiac troponin > 99th percentile upper reference limit (URL) | **+2** |
-| **Abnormal QRS Axis** | Frontal plane QRS axis < -30° (left-axis deviation) or > +100° (right-axis deviation) | **+1** |
-| **QRS Duration Prolongation** | QRS duration > 102 ms (or bundle-branch block / conduction delay > 120 ms) | **+1** |
-| **Corrected QT Prolongation** | Corrected QT interval (QTc) > 480 ms (Bazett formula) | **+2** |
-
-### 3. Emergency Department Presumptive Diagnosis
-| Parameter | Clinical Impression at ED Completion | Score Points |
-|:----------|:-------------------------------------|:------------:|
-| **Vasovagal Syncope** | High clinical suspicion for pure neurocardiogenic / reflex etiology | **-2** |
-| **Cardiac Syncope** | High clinical suspicion for primary arrhythmic or structural cardiac etiology | **+2** |
-| **Other / Unknown** | Orthostatic, situational, medication-induced, or cryptogenic presentation | **0** |
-
----
-
-## 📊 Risk Tiers & 30-Day SAE Probability Calibration
-
-Empirical risk distributions derived from Canadian multi-center derivation and validation cohorts:
-
-| Risk Category | CSRS Score Range | 30-Day SAE Risk (%) | 95% Confidence Interval | Arrhythmic Risk (%) | Disposition Recommendation |
-|:-------------:|:----------------:|:-------------------:|:-----------------------:|:-------------------:|:---------------------------|
-| **Very Low** | **-3 to -2** | **~0.4% – 0.7%** | 0.1% – 1.2% | 0.1% – 0.2% | Safe for immediate ED discharge; routine primary care follow-up |
-| **Low** | **-1** | **~1.4%** | 0.8% – 2.2% | 0.4% | Low risk; safe for discharge after ED observation period |
-| **Medium** | **0 to 1** | **~2.9% – 5.3%** | 2.0% – 7.1% | 1.1% – 2.4% | Intermediate risk; 4–6 hr ED observation, telemetry monitoring |
-| **High** | **2 to 3** | **~8.4% – 13.2%** | 6.3% – 16.8% | 4.5% – 7.8% | High risk; hospital admission recommended, urgent cardiology consult |
-| **Very High** | **4 to 11** | **~21.4% – 95.0%** | 16.5% – 99.0% | 14.1% – 80.0% | Critical risk; inpatient telemetry / CCU admission, urgent echo & EP |
-
----
-
-## 💻 CLI Quickstart & Usage
-
-### 1. Batch CSV Processing
-Process an entire cohort of ED presentations from a CSV file:
-
-```bash
-python cli.py batch -i sample.csv -o csrs_results.csv
-```
-
-### 2. Single Presentation Evaluation
-Evaluate an individual clinical case using command-line arguments:
-
-```bash
-# High-risk patient with cardiac history, hypotension, and elevated troponin
-python cli.py evaluate \
-  --patient-id PAT-042 \
-  --cardiac-history \
-  --sbp 84.0 \
-  --troponin-elevated \
-  --ecg-qtc-prolonged \
-  --ed-diagnosis cardiac
-```
-
-JSON output mode:
-```bash
-python cli.py evaluate --cardiac-history --sbp 88.0 --troponin-elevated --json
-```
-
-### 3. Display Calibrated Score Reference Table
-```bash
+~~~bash
+python cli.py evaluate --vasovagal-predisposition --sbp 120 --json
+python cli.py batch -i sample.csv -o results.csv
 python cli.py table
-```
+~~~
 
-### 4. Interactive Clinical Wizard
-```bash
-python cli.py interactive
-```
+Python API:
 
----
+~~~python
+from canadian_syncope import CSRSInput, evaluate_csrs
 
-## 🐍 Python API Quickstart
-
-```python
-from canadian_syncope import CSRSInput, evaluate_csrs, calculate_metrics
-
-# 1. Structured Dataclass Interface
-patient = CSRSInput(
-    patient_id="ED-2026-881",
-    predisposition_vasovagal=False,
-    history_heart_disease=True,
-    systolic_bp=86.0,
-    troponin_elevated=True,
-    ecg_abnormal_axis=True,
-    ecg_prolonged_qrs=False,
-    ecg_prolonged_qtc=True,
-    ed_diagnosis="cardiac",
-)
-
-result = evaluate_csrs(patient)
-
-print(f"Patient ID: {result.patient_id}")
-print(f"Score: {result.score:+d}")
-print(f"Risk Tier: {result.risk_tier}")
-print(f"30-day SAE Probability: {result.sae_30day_probability_pct:.1f}%")
-print(f"Arrhythmic Risk: {result.arrhythmic_risk_probability_pct:.1f}%")
-print(f"Disposition: {result.disposition_recommendation}")
-
-# 2. Dictionary / Kwargs Pipeline Interface
-metrics = calculate_metrics(
-    patient_id="ED-2026-882",
+result = evaluate_csrs(CSRSInput(
     predisposition_vasovagal=True,
     history_heart_disease=False,
-    systolic_bp=118.0,
+    systolic_bp=120,
     troponin_elevated=False,
+    ecg_abnormal_axis=False,
+    ecg_prolonged_qrs=False,
+    ecg_prolonged_qtc=False,
     ed_diagnosis="vasovagal",
-)
-print(f"Score: {metrics['score']}, Tier: {metrics['risk_tier']}")
-```
+))
 
----
+print(result.score, result.risk_tier)
+~~~
 
-## 🧪 Testing & Verification
+## Testing
 
-Run the test suite using `pytest`:
+~~~bash
+python -m unittest discover -s tests -p 'test_*.py' -v
+node tests/test_web.mjs
+~~~
 
-```bash
-python -m pytest -p no:zarr -v
-```
+GitHub Actions runs syntax checks, Python tests across supported versions, CLI smoke tests, browser-calculator tests, and static security checks.
 
-Perform a smoke test on batch processing:
-```bash
-python cli.py batch -i sample.csv -o out_smoke.csv
-```
+## Clinical scope and evidence
 
----
+The CSRS was developed for patients presenting to an emergency department with syncope and validated for 30-day serious outcomes after the index ED evaluation. It should not be used as a substitute for diagnosis, clinical judgment, local protocols, or assessment of a serious cause already identified during the ED visit.
 
-## 📄 License
+Primary references:
 
-This software is released under the [MIT License](LICENSE).
+- Thiruganasambandamoorthy V, et al. *Development of the Canadian Syncope Risk Score to predict serious adverse events after emergency department assessment of syncope.* CMAJ. 2016;188(12):E289-E298. doi:10.1503/cmaj.151469.
+- Thiruganasambandamoorthy V, et al. *Multicenter Emergency Department Validation of the Canadian Syncope Risk Score.* JAMA Intern Med. 2020;180(5):737-744. doi:10.1001/jamainternmed.2020.0288.
+
+## Privacy
+
+The browser calculator is static. It does not transmit entered values, use analytics, or contact an application backend. Only the selected color theme is stored in local browser storage.
+
+## Technology and browser support
+
+The web interface uses semantic HTML, CSS, and modern JavaScript modules without third-party packages. Current versions of Chrome, Edge, Firefox, and Safari are supported. The Python implementation uses only the standard library.
+
+Python-in-the-browser runtimes such as Pyodide are intentionally not used: the calculation is simple enough to reproduce directly in a small tested JavaScript module, avoiding a large WebAssembly runtime and network dependency.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
