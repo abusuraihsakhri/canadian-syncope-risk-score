@@ -1,5 +1,7 @@
 # Canadian Syncope Risk Score
 
+### [Open the Live Application →](https://abusuraihsakhri.github.io/canadian-syncope-risk-score/)
+
 A dependency-free implementation of the **Canadian Syncope Risk Score (CSRS)** for research, education, and reproducible score calculation. The repository provides a browser calculator, Python API, CLI, CSV batch processing, and automated tests.
 
 ## What it calculates

@@ -34,3 +34,23 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify live site
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          for attempt in {1..12}; do
+            if curl --fail --silent --show-error --location "$PAGE_URL" -o /tmp/csrs-page.html; then
+              grep -q '>Analyze<' /tmp/csrs-page.html
+              curl --fail --silent --show-error --location "${PAGE_URL}app.mjs" -o /tmp/app.mjs
+              curl --fail --silent --show-error --location "${PAGE_URL}csrs.mjs" -o /tmp/csrs.mjs
+              curl --fail --silent --show-error --location "${PAGE_URL}styles.css" -o /tmp/styles.css
+              test -s /tmp/app.mjs
+              test -s /tmp/csrs.mjs
+              test -s /tmp/styles.css
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Live-site smoke test failed for $PAGE_URL" >&2
+          exit 1
